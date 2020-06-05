@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+        <link rel="stylesheet" href="customized.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    </head>
+    <body>
+        <header>
+          <ul class="sidenav sidenav-fixed sidenav-customized">
+            <li class="bold">
+              <a href="#" class="waves-effect waves-light tooltipped" data-position="right" data-tooltip="專題Demo"><i class="material-icons">chat</i></a>
+            </li>
+            <li class="bold">
+              <a href="#" class="waves-effect waves-light tooltipped" data-position="right" data-tooltip="Web testing"><i class="material-icons">web</i></a>
+            </li>
+            <li class="bold">
+              <a href="#" class="waves-effect waves-light tooltipped" data-position="right" data-tooltip="API testing"><i class="material-icons">http</i></a>
+            </li>
+          </ul>
+        </header>
+        <main class="main-customized">
+          <div class="container">
+            <div class="row">
+              <div class="col s12">
+                <div class="from-me">
+                  <p>Hey bot! Show me somethings...😃</p>
+                </div>
+                <div class="clear"></div>
+                <div class="from-them">
+                  <p>Sure ~ </p>
+                </div>
+                <div class="clear"></div>
+                <div class="carousel carousel-slider center carousel-customized">
+                    <div class="carousel-fixed-item center">
+                      <a class="btn waves-effect white grey-text darken-text-2">button</a>
+                    </div>
+                    <div class="carousel-item red white-text" href="#one!">
+                      <h2>First Panel</h2>
+                      <p class="white-text">This is your first panel</p>
+                    </div>
+                    <div class="carousel-item amber white-text" href="#two!">
+                      <h2>Second Panel</h2>
+                      <p class="white-text">This is your second panel</p>
+                    </div>
+                    <div class="carousel-item green white-text" href="#three!">
+                      <h2>Third Panel</h2>
+                      <p class="white-text">This is your third panel</p>
+                    </div>
+                    <div class="carousel-item blue white-text" href="#four!">
+                      <h2>Fourth Panel</h2>
+                      <p class="white-text">This is your fourth panel</p>
+                    </div>
+                  </div>
+                <div class="clear"></div>
+                <div class="from-me">
+                  <p>Hey there!😃 What's up?!</p>
+                </div>
+              </div>
+            </div>
+        </main>
+        <footer class="page-footer footer-customized white">
+          <div class="container white">
+            <div class="row">
+              <div class="col s12">
+                <div class="row">
+                  <div class="input-field col s12">
+                    <textarea id="message" class="materialize-textarea"></textarea>
+                    <label for="message">Type something...</label>
+                    <button class="prefix transparent waves-effect waves-light" style="border: none;">
+                      <i class="material-icons teal-text">send</i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="footer-copyright white black-text">
+            <div class="container">© 2020 Quab-087(Steve Lu)</div>
+          </div>
+        </footer>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+        <script>
+          document.addEventListener('DOMContentLoaded', function() {
+            var elems = document.querySelectorAll('.tooltipped');
+            M.Tooltip.init(elems);
+          });
+            var elems = document.querySelectorAll('.carousel');
+            M.Carousel.init(elems, {
+              fullWidth: true,
+              indicators: true
+            });
+        </script>
+    </body>
+  </html>
