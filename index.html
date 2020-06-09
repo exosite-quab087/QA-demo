@@ -41,7 +41,7 @@
               <div class="container">© 2020 Quab-087(Steve Lu).All rights reserved</div>
             </div>
           </footer>
-          <div id="infoModal" class="modal modal-fixed-footer">
+          <div id="infoModal" class="modal bottom-sheet">
             <div class="modal-content">
               <section id="conference-timeline">
                 <div class="timeline-start">Description</div>
@@ -116,7 +116,7 @@
                   </div>
                   <div v-else-if="item.type === 'high_sim_record'">
                     <div class="collection">
-                      <a v-for="(option, index) in item.body" @click="record(option.title, option.reply, item.record)" class="collection-item">{{ option.reply }}(相似度: {{ option.sim }})</a>
+                      <a v-for="(option, index) in item.body" @click="record(option.title, option.reply, item.record)" class="collection-item">{{ option.reply }}(相似度: {{ option.sim }}%)</a>
                     </div>
                   </div>
                 </div>

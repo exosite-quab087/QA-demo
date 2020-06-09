@@ -30,10 +30,10 @@
                         <div class="input-field col s12">
                             <div class="input-field col s12">
                                 <select v-model="curOption">
-                                    <option value="" disabled selected>Choose your option</option>
-                                    <option>Demo - forecasting feature</option>
-                                    <option>Demo - should return 403 as calling forecasting API with invalid token</option>
-                                    <option>Demo - should return 405 as calling API with unexpected method</option>
+                                    <option value="" disabled selected>Choose a demonstration</option>
+                                    <option>Demo1 - should return 405 as calling API with unexpected method</option>
+                                    <option>Demo2 - should return 403 as calling forecasting API with invalid token</option>
+                                    <option>Demo3 - forecasting feature</option>
                                 </select>
                                 <label>Test cases</label>
                                 <div id="progress" class="progress" style="display: none;">
@@ -50,7 +50,7 @@
                     <div class="container">© 2020 Quab-087(Steve Lu).All rights reserved</div>
                 </div>
             </footer>
-            <div id="infoModal" class="modal modal-fixed-footer">
+            <div id="infoModal" class="modal bottom-sheet">
                 <div class="modal-content">
                     <section id="conference-timeline">
                         <div class="timeline-start">Description</div>
@@ -60,7 +60,13 @@
                                 <div class="content-left-container">
                                     <div class="content-left">
                                         <p>
-                                            此專題原先是一個基於word2vec模型以及BM25演算法，可以做語意分析的linebot聊天機器人。這是一個將重寫介面後的網頁demo。
+                                            About Demo1:<br><br>
+                                            Scenario: 當使用非預期calling method時，將返回405<br>
+                                            Test plan:<br>
+                                            Functional checking.<br>
+                                            Use GET method to call https://{domain}/chat/ API with the test message<br>
+                                            Expected reuslt:<br>
+                                            1) The resp should be 405
                                             <span class="article-number">01</span>
                                         </p>
                                     </div>
@@ -73,9 +79,19 @@
                                 <div class="content-right-container">
                                     <div class="content-right">
                                         <p>
-                                            此bot目前擁有如下功能:<br>
-                                            1.透過自定義的任務模組，透過rulebase判斷語意後執行對應動作<br>
-                                            2.自學習功能，蒐集關聯性高的標題:回覆組合，並記錄在可客製化的知識庫中，慢慢增強判斷能力
+                                            About Demo2:<br><br>
+                                            Scenario: 當token為非法時，使用預測功能將返回403 forbidden<br>
+                                            Test plan:<br>
+                                            Prep.<br>
+                                            Use POST to call https://{domain}/chat/ API with the test message<br>
+                                            Expected result:<br>
+                                            1) The resp should be 200 and contains expected properties: {token}, {reply}, {title}, {type}<br>
+                                            2) {type} should be "forecast"<br>
+                                            3) {token}, {reply}, {title} should not be empty<br><br>
+                                            Functional checking.<br>
+                                            Use POST to call https://{domain}/record/ API with required data and an invalid token<br>
+                                            Expected reuslt:<br>
+                                            1) The resp should be 403
                                             <span class="article-number">02</span>
                                         </p>
                                     </div>
@@ -88,10 +104,23 @@
                                 <div class="content-left-container">
                                     <div class="content-left">
                                         <p>
-                                            可輸入以下句子進行測試:<br><br>
-                                            1.「顯示使用說明」 - 進行功能介紹<br><br>
-                                            2.「你能幫我做什麼」 - 語意預測功能，bot會猜測可能的語意，並顯示對應的動作(自學習功能在此demo中未開啟)<br><br>
-                                            3.「找租金在五千到七千之間的房子」、「找中興大學附近的房子」、「找台中西屯區的房子」 - 調用之前做專題時寫的租屋分類功能，進行多樣化的租屋查詢(此demo僅顯示住址與租金資料)
+                                            About Demo3:<br><br>
+                                            Scenario: 這是關於專題預測功能的測試項目<br>
+                                            Test plan:<br>
+                                            Prep.<br>
+                                            Use POST to call https://{domain}/chat/ API with the test message<br>
+                                            Expected result:<br>
+                                            1) The resp should be 200 and contains expected properties: {token}, {reply}, {title}, {type}<br>
+                                            2) {type} should be "forecast"<br>
+                                            3) {token}, {reply}, {title} should not be empty<br><br>
+                                            Functional checking.<br>
+                                            Use POST to call https://{domain}/record/ API with {title}, {reply}, {token} and record=true<br>
+                                            Expected reuslt:<br>
+                                            1) The resp should be 200<br><br>
+                                            Functional checking.<br>
+                                            Use POST to call https://{domain}/chat/ API with the test message<br>
+                                            Expected result:<br>
+                                            1) The resp should be 200 and contains expected message
                                             <span class="article-number">03</span>
                                         </p>
                                     </div>
@@ -165,7 +194,7 @@
                         },
                         {
                             'icon': 'info',
-                            'title': '專題說明',
+                            'title': '測試說明',
                             'uri': '#infoModal',
                             'external_class': {
                             'modal-trigger': true
