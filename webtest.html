@@ -1,0 +1,214 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <link type="text/css" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:700,300">
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+        <link rel="stylesheet" href="customized.css">
+        <script src="https://www.gstatic.com/firebasejs/5.11.1/firebase-app.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/5.11.1/firebase-firestore.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/vue@2.6.0"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    </head>
+    <body>
+        <div id="app">
+            <header>
+                <ul class="sidenav sidenav-fixed sidenav-customized">
+                    <li class="bold" v-for="(item, key) in pages">
+                        <a :href="item.uri" class="waves-effect waves-light tooltipped" data-position="right" :data-tooltip="item.title"><i class="material-icons">{{ item.icon }}</i></a>
+                    </li>
+                </ul>
+            </header>
+            <main class="listener" ref="container">
+                <div class="container">
+                    <suites  :tree-data="dataDict" :key="counter"></suites>
+                </div>
+            </main>
+            <footer class="page-footer footer-customized white">
+                <div class="container white">
+                    <div class="row">
+                        <div class="input-field col s12">
+                            <div class="input-field col s12">
+                                <select v-model="curOption">
+                                    <option value="" disabled selected>Choose your option</option>
+                                    <option value="Demo - get the title from google homepage">Option 1</option>
+                                    <option value="Demo - get the title from github homepage">Option 2</option>
+                                    <option value="3">Option 3</option>
+                                </select>
+                                <label>Test cases</label>
+                                <div id="progress" class="progress" style="display: none;">
+                                    <div class="indeterminate"></div>
+                                </div>
+                            </div>
+                            <button class="prefix transparent waves-effect waves-light" style="border: none;" v-on:click="runTest(curOption)">
+                                <i class="material-icons teal-text">send</i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="footer-copyright white black-text">
+                    <div class="container">© 2020 Quab-087(Steve Lu)</div>
+                </div>
+            </footer>
+        </div>
+        <script>
+            Vue.component('suites', {
+                template: `<ul id="tree-container" class="pure-tree main-tree">
+                    <item :tree="treeData"></item>
+                </ul>`,
+                props: ['treeData']
+            });
+            Vue.component('item',{
+                template: `<li>
+                    <input v-if="Object.keys(tree).length > 0" type="checkbox" :id="tree.attributes.id" :checked="(tree.attributes.status === 'running') || (tree.attributes.status === 'FAIL')">
+                    <label v-if="Object.keys(tree).length > 0" :class="tree.attributes.status" :for="tree.attributes.id" :event-type="tree.attributes.type">
+                        &emsp;{{ tree.attributes.name }}
+                    </label>
+                    <p v-if="(Object.keys(tree).length === 1) && (tree.attributes.status === 'FAIL') && (tree.attributes.message !== null)">
+                        {{ tree.attributes.message }}
+                    </p>
+                    <ul v-if="Object.keys(tree).length > 1" class="pure-tree">
+                        <item v-for="(item, key, index) in getNode" :tree="item"></item>
+                    </ul>
+                </li>`,
+                props: ['tree'],
+                computed: {
+                    getNode() {
+                        let node = {};
+                        for(let i in this.tree) {
+                            if(/^\d+$/.test(i)) {
+                                node[i] = this.tree[i];
+                            }
+                        }
+                        return node;
+                    }
+                }
+            });
+            new Vue({
+                el: '#app',
+                data: {
+                    curOption: '',
+                    dataDict: {},
+                    counter: 0,
+                    pathList: [],
+                    status: 'init',
+                    pages: [
+                        {
+                            'icon': 'chat',
+                            'title': '專題Demo',
+                            'uri': '#'
+                        },
+                        {
+                            'icon': 'bug_report',
+                            'title': '測試項目',
+                            'uri': '#'
+                        }
+                    ]
+                },
+                created: function() {
+                    this.init();
+                },
+                mounted: function() {
+                    this.el_init();
+                },
+                updated: function() {
+                    this.$refs.container.scrollTop = this.$refs.container.scrollHeight;
+                },
+                computed: {
+                    watchStatus() {
+                        return this.status
+                    }
+                },
+                watch: {
+                    watchStatus(newVal) {
+                        if (newVal === 'running') {
+                            document.getElementById('progress').style.display = 'block';
+                        }
+                        else if(newVal === 'end') {
+                            document.getElementById('progress').style.display = 'none';
+                        }
+                    }
+                },
+                methods: {
+                    el_init() {
+                        var elems = document.querySelectorAll('.tooltipped');
+                        M.Tooltip.init(elems);
+                        var elems = document.querySelectorAll('select');
+                        M.FormSelect.init(elems);
+                    },
+                    init() {
+                        var config = {
+                            apiKey: "AIzaSyCbaBZ4gRThNi0GJx_NIYNYMSPzAMBOcGQ",
+                            authDomain: "listener-8e2cd.firebaseapp.com",
+                            projectId: "listener-8e2cd"
+                        };
+                        firebase.initializeApp(config);
+                        var db = firebase.firestore();
+                        db.collection("dataCollection").doc("data")
+                            .onSnapshot(this.received);
+                    },
+                    received(evt) {
+                        if(this.status === 'init') {
+                            this.status = 'start';
+                            return;
+                        }
+                        const data = JSON.parse(evt.data()['curVal']);
+                        if ('path' in data) {
+                            const attributes = {
+                                'name': data['name'],
+                                'type': data['type'],
+                                'id': data['path'].length > 0 ? data['path'] : 'root',
+                                'status': 'running',
+                                'message': null
+                            }
+                            const path = data['path'].length > 0 ? data['path'] + '.attributes' : data['path'] + 'attributes';
+                            this.setVal(this.dataDict, path, attributes);
+                            this.pathList.push(data['path']);
+                        }
+                        else {
+                            let obj = this.getVal(this.dataDict, this.pathList.pop());
+                            if(obj) {
+                                obj['attributes']['message'] = data['message'];
+                                obj['attributes']['status'] = data['status'];
+                            }
+                            else {
+                                this.dataDict['attributes']['message'] = data['message'];
+                                this.dataDict['attributes']['status'] = data['status'];
+                                this.status = 'end';
+                            }
+                        }
+                        this.counter++;
+                    },
+                    setVal(obj, path, val) {
+                        const pArray = path.split('.');
+                        const len = pArray.length;
+                        for(let i = 0; i < len - 1; i++) {
+                            const el = pArray[i];
+                            if(!obj[el]) {
+                                obj[el] = {}
+                            }
+                            obj = obj[el]
+                        }
+                        obj[pArray[len-1]] = val;
+                    },
+                    getVal(obj, path) {
+                        for(let i = 0, pArray = path.split('.'), len = pArray.length; i < len; i++) {
+                            obj = obj[pArray[i]];
+                        }
+                        return obj;
+                    },
+                    runTest(option) {
+                        if (this.status === 'running') {
+                            M.toast({html: '請先等待本次測試完成'});
+                            return;
+                        }
+                        this.status = 'running';
+                        var xhr = new XMLHttpRequest();
+                        xhr.open('POST', 'https://linebotest.pythonanywhere.com/test/');
+                        xhr.send(JSON.stringify({'case': option}));
+                    }
+                }
+            });
+        </script>
+    </body>
+</html>

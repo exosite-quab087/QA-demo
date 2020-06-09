@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+        <link rel="stylesheet" href="customized.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <script src="https://cdn.jsdelivr.net/npm/vue@2.6.0"></script>
+    </head>
+    <body>
+        <div id="app">
+          <header>
+            <ul class="sidenav sidenav-fixed sidenav-customized">
+              <li class="bold" v-for="(item, key) in pages">
+                <a :href="item.uri" class="waves-effect waves-light tooltipped" data-position="right" :data-tooltip="item.title"><i class="material-icons">{{ item.icon }}</i></a>
+              </li>
+            </ul>
+          </header>
+          <main class="main-customized" ref="main">
+            <div class="container">
+              <div class="row">
+                <div class="col s12">
+                  <messages v-for="(msg, index) in msgs" :item="msg" :key="counter" @record="pushMsg"></messages>
+                </div>
+              </div>
+          </main>
+          <footer class="page-footer footer-customized white">
+            <div class="container white">
+              <div class="row">
+                <div class="input-field col s12">
+                  <input id="curToken" type="hidden" value="">
+                  <textarea id="message" class="materialize-textarea" v-model="curMsg"></textarea>
+                  <label for="message">Type something...</label>
+                  <button id="sendBtn" class="prefix transparent waves-effect waves-light" style="border: none;" v-on:click="sendMsg(curMsg)">
+                    <i class="material-icons teal-text">send</i>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="footer-copyright white black-text">
+              <div class="container">© 2020 Quab-087(Steve Lu)</div>
+            </div>
+          </footer>
+        </div>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+        <script>
+            Vue.component('messages', {
+              template: `<div>
+                <div :class="item.classList">
+                  <div v-if="item.type === 'text'">{{ item.body }}</div>
+                  <div v-else-if="item.type === 'houses'">
+                    <house v-for="(houseItem, index) in item.body" :house-item="houseItem" :counter="index"></house>
+                  </div>
+                  <div v-else-if="item.type === 'low_sim_record'">
+                    <div class="collection">
+                      <a v-for="(option, index) in item.body" @click="record(option.title, option.reply, item.record)" class="collection-item">{{ option.reply }}</a>
+                    </div>
+                  </div>
+                  <div v-else-if="item.type === 'high_sim_record'">
+                    <div class="collection">
+                      <a v-for="(option, index) in item.body" @click="record(option.title, option.reply, item.record)" class="collection-item">{{ option.reply }}(相似度: {{ option.sim }})</a>
+                    </div>
+                  </div>
+                </div>
+                <div class="clear"></div>
+              </div>`,
+              props: ['item'],
+              methods: {
+                record(title, reply, isRecord) {
+                  var msg = [
+                    {
+                      'classList': {
+                        'from-them': true
+                      },
+                      'body': '了解，我會努力記住的~',
+                      'type': 'text'
+                    }
+                  ];
+                  this.$emit('record', msg);
+                  var flag = this;
+                  var token = document.getElementById('curToken').value;
+                  var xhr = new XMLHttpRequest();
+                  xhr.responseType = 'json';
+                  xhr.open('POST', 'https://linebotest.pythonanywhere.com/record/');
+                  xhr.onreadystatechange = function() {
+                    if (xhr.readyState == XMLHttpRequest.DONE) {
+                      if (xhr.status == 200) {
+                        flag.$parent.sendMsg(reply);
+                      }
+                    }
+                  }
+                  xhr.send(JSON.stringify({'title': title, 'reply': reply, 'token': token, 'record': isRecord}));
+                }
+              }
+            });
+            Vue.component('house', {
+              template: `<div class="carousel-item white-text" :class="getColor">
+                <h2>{{ houseItem.name }}</h2>
+                <p class="white-text">Rent: {{ houseItem.rent }}</p>
+              </div`,
+              props: ['houseItem', 'counter'],
+              computed: {
+                getColor() {
+                  var testColors = ['red', 'blue', 'yellow', 'green', 'purple'];
+                  return testColors[this.counter];
+                }
+
+              }
+            });
+            new Vue({
+              el: '#app',
+              data: {
+                pages: [
+                  {
+                    'icon': 'chat',
+                    'title': '專題Demo',
+                    'uri': '#'
+                  },
+                  {
+                    'icon': 'bug_report',
+                    'title': '測試項目',
+                    'uri': '#'
+                  }
+                ],
+                curMsg: '',
+                msgs: [],
+                counter: 0
+              },
+              mounted: function() {
+                this.init();
+              },
+              updated: function() {
+                this.$refs.main.scrollTop = this.$refs.main.scrollHeight;
+                var elems = document.querySelectorAll('.carousel');
+                M.Carousel.init(elems, {
+                  fullWidth: true,
+                  indicators: true
+                });
+              },
+              methods: {
+                init() {
+                  var elems = document.querySelectorAll('.tooltipped');
+                  M.Tooltip.init(elems);
+                },
+                sendMsg(curMsg) {
+                  var sendMsg = {
+                    'classList': {
+                      'from-me': true
+                    },
+                    'body': curMsg,
+                    'type': 'text'
+                  }
+                  this.msgs.push(sendMsg);
+                  var flag = this;
+                  var xhr = new XMLHttpRequest();
+                  xhr.responseType = 'json';
+                  xhr.open('POST', 'https://linebotest.pythonanywhere.com/chat/');
+                  xhr.onreadystatechange = function() {
+                    if (xhr.readyState == XMLHttpRequest.DONE) {
+                      if (xhr.status == 200) {
+                        var body = xhr.response;
+                        if (body.hasOwnProperty('token')) {
+                          document.getElementById('curToken').value = body['token'];
+                        }
+                        var type = body['type'];
+                        if (type === 'houses') {
+                            var msg = [
+                              {
+                                'classList': {
+                                  'from-them': true
+                                },
+                                'body': '以下是匹配到的房屋列表',
+                                'type': 'text'
+                              },
+                              {
+                                'classList': {
+                                  'carousel': true,
+                                  'carousel-slider': true,
+                                  'center': true,
+                                  'carousel-customized': true
+                                },
+                                'body': body['resp'],
+                                'type': 'houses'
+                              }
+                            ];
+                        }
+                        else if (type === 'no_matched_resp') {
+                            var msg = [
+                              {
+                                'classList': {
+                                  'from-them': true
+                                },
+                                'body': '抱歉，我不懂您的意思QQ下方有符合您意圖的選項嗎?',
+                                'type': 'text'
+                              },
+                              {
+                                'classList': {
+                                  'from-them': true,
+                                  'badge-customized': true
+                                },
+                                'body': body['resp'],
+                                'record': body['record'],
+                                'type': 'low_sim_record'
+                              }
+                            ];
+                        }
+                        else if(type === 'forecast') {
+                          var msg = [
+                            {
+                              'classList': {
+                                'from-them': true
+                              },
+                              'body': '經過系統預測，您的意圖有可能對應到以下功能',
+                              'type': 'text'
+                            },
+                            {
+                              'classList': {
+                                'from-them': true,
+                                'badge-customized': true
+                              },
+                              'body': body['resp'],
+                              'record': true,
+                              'type': 'high_sim_record'
+                            }
+                          ];
+                        }
+                        else {
+                          var msg = [
+                            {
+                              'classList': {
+                              'from-them': true
+                            },
+                              'body': body['resp'],
+                              'type': 'text'
+                            }
+                          ];
+                        }
+                        for (var i = 0; i < msg.length; i++) {
+                          flag.msgs.push(msg[i]);
+                        }
+                        flag.counter++;
+                      }
+                    }
+                  }
+                  xhr.send(JSON.stringify({'message': curMsg}));
+                },
+                pushMsg(msg) {
+                  for (var i = 0; i < msg.length; i++) {
+                    this.msgs.push(msg[i]);
+                  }
+                  this.counter++;
+                }
+              }
+            });
+        </script>
+    </body>
+  </html>
