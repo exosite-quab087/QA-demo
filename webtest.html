@@ -15,13 +15,13 @@
             <header>
                 <ul class="sidenav sidenav-fixed sidenav-customized">
                     <li class="bold" v-for="(item, key) in pages">
-                        <a :href="item.uri" class="waves-effect waves-light tooltipped" data-position="right" :data-tooltip="item.title"><i class="material-icons">{{ item.icon }}</i></a>
+                        <a :href="item.uri" class="waves-effect waves-light tooltipped" :class="item.external_class" data-position="right" :data-tooltip="item.title"><i class="material-icons">{{ item.icon }}</i></a>
                     </li>
                 </ul>
             </header>
             <main class="listener" ref="container">
                 <div class="container">
-                    <suites  :tree-data="dataDict" :key="counter"></suites>
+                    <suites :tree-data="dataDict" :key="counter"></suites>
                 </div>
             </main>
             <footer class="page-footer footer-customized white">
@@ -50,6 +50,64 @@
                     <div class="container">© 2020 Quab-087(Steve Lu).All rights reserved</div>
                 </div>
             </footer>
+            <div id="infoModal" class="modal modal-fixed-footer">
+                <div class="modal-content">
+                    <section id="conference-timeline">
+                        <div class="timeline-start">Description</div>
+                        <div class="conference-center-line"></div>
+                        <div class="conference-timeline-content">
+                            <div class="timeline-article">
+                                <div class="content-left-container">
+                                    <div class="content-left">
+                                        <p>
+                                            此專題原先是一個基於word2vec模型以及BM25演算法，可以做語意分析的linebot聊天機器人。這是一個將重寫介面後的網頁demo。
+                                            <span class="article-number">01</span>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="meta-date">
+                                    <i class="material-icons date">keyboard_arrow_down</i>
+                                </div>
+                            </div>
+                            <div class="timeline-article">
+                                <div class="content-right-container">
+                                    <div class="content-right">
+                                        <p>
+                                            此bot目前擁有如下功能:<br>
+                                            1.透過自定義的任務模組，透過rulebase判斷語意後執行對應動作<br>
+                                            2.自學習功能，蒐集關聯性高的標題:回覆組合，並記錄在可客製化的知識庫中，慢慢增強判斷能力
+                                            <span class="article-number">02</span>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="meta-date">
+                                    <i class="material-icons date">keyboard_arrow_down</i>
+                                </div>
+                            </div>
+                            <div class="timeline-article">
+                                <div class="content-left-container">
+                                    <div class="content-left">
+                                        <p>
+                                            可輸入以下句子進行測試:<br><br>
+                                            1.「顯示使用說明」 - 進行功能介紹<br><br>
+                                            2.「你能幫我做什麼」 - 語意預測功能，bot會猜測可能的語意，並顯示對應的動作(自學習功能在此demo中未開啟)<br><br>
+                                            3.「找租金在五千到七千之間的房子」、「找中興大學附近的房子」、「找台中西屯區的房子」 - 調用之前做專題時寫的租屋分類功能，進行多樣化的租屋查詢(此demo僅顯示住址與租金資料)
+                                            <span class="article-number">03</span>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="meta-date">
+                                    <i class="material-icons date">keyboard_arrow_down</i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="timeline-end">End</div>
+                    </section>
+                </div>
+                <div class="modal-footer">
+                    <a href="#!" class="modal-close waves-effect waves-green btn-flat">Close</a>
+                </div>
+            </div>
         </div>
         <script>
             Vue.component('suites', {
@@ -96,12 +154,22 @@
                         {
                             'icon': 'chat',
                             'title': '專題Demo',
-                            'uri': '/QA-demo/'
+                            'uri': '/QA-demo/',
+                            'external_class': {}
                         },
                         {
                             'icon': 'bug_report',
                             'title': '測試項目',
-                            'uri': '/QA-demo/webtest'
+                            'uri': '/QA-demo/webtest',
+                            'external_class': {}
+                        },
+                        {
+                            'icon': 'info',
+                            'title': '專題說明',
+                            'uri': '#infoModal',
+                            'external_class': {
+                            'modal-trigger': true
+                            }
                         }
                     ]
                 },
@@ -133,6 +201,8 @@
                     el_init() {
                         var elems = document.querySelectorAll('.tooltipped');
                         M.Tooltip.init(elems);
+                        var elems = document.querySelectorAll('.modal');
+                        M.Modal.init(elems);
                         var elems = document.querySelectorAll('select');
                         M.FormSelect.init(elems);
                     },
