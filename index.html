@@ -208,8 +208,9 @@
                 init() {
                   var elems = document.querySelectorAll('.tooltipped');
                   M.Tooltip.init(elems);
-                  var elems = document.querySelectorAll('.modal');
-                  M.Modal.init(elems);
+                  var elem = document.querySelector('#infoModal');
+                  var instance = M.Modal.init(elem);
+                  instance.open();
                 },
                 sendMsg(curMsg) {
                   var sendMsg = {
