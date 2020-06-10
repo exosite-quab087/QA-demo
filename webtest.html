@@ -223,6 +223,14 @@
                         }
                         else if(newVal === 'end') {
                             document.getElementById('progress').style.display = 'none';
+                            M.toast({
+                                html: '<span style="font-weight: bold;">RF log:</span><a class="btn-flat toast-action" style="font-weight: bold;" href="https://linebotest.pythonanywhere.com/log.html">click here</a>',
+                                displayLength: 4000000
+                            });
+                            M.toast({
+                                html: '<span style="font-weight: bold;">Test script:</span><a class="btn-flat toast-action" style="font-weight: bold;" href="https://linebotest.pythonanywhere.com/testScript.robot" download>click here</a>',
+                                displayLength: 4000000
+                            });
                         }
                     }
                 },
@@ -301,6 +309,7 @@
                             M.toast({html: '請先等待本次測試完成'});
                             return;
                         }
+                        M.Toast.dismissAll();
                         this.status = 'running';
                         var xhr = new XMLHttpRequest();
                         xhr.open('POST', 'https://linebotest.pythonanywhere.com/test/');
