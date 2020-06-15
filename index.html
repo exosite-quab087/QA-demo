@@ -29,11 +29,12 @@
               <div class="row">
                 <div class="input-field col s12">
                   <input id="curToken" type="hidden" value="">
-                  <textarea id="message" class="materialize-textarea" v-model="curMsg"></textarea>
+                  <textarea id="message" class="materialize-textarea" v-model="curMsg" data-length="100"></textarea>
                   <label for="message">Type something...</label>
                   <button id="sendBtn" class="prefix transparent waves-effect waves-light" style="border: none;" v-on:click="sendMsg(curMsg)">
                     <i class="material-icons teal-text">send</i>
                   </button>
+                  <span id="invalidMsg" style="display: none; float: left; font-size: 12px; color: red;"></span>
                 </div>
               </div>
             </div>
@@ -206,13 +207,25 @@
               },
               methods: {
                 init() {
-                  var elems = document.querySelectorAll('.tooltipped');
-                  M.Tooltip.init(elems);
-                  var elem = document.querySelector('#infoModal');
-                  var instance = M.Modal.init(elem);
-                  instance.open();
+                  M.AutoInit();
+                  var el = document.querySelectorAll('#message');
+                  M.CharacterCounter.init(el);
                 },
                 sendMsg(curMsg) {
+                  if (curMsg === "") {
+                    document.getElementById('invalidMsg').style.display = 'block';
+                    document.getElementById('invalidMsg').innerHTML = 'Invalid input value';
+                    return;
+                  }
+                  var counter = document.querySelector('.character-counter').innerHTML.split('/');
+                  var curLen = parseInt(counter[0]);
+                  var totalLen = parseInt(counter[1]);
+                  if (curLen > totalLen) {
+                    document.getElementById('invalidMsg').style.display = 'block';
+                    document.getElementById('invalidMsg').innerHTML = 'Invalid length of character';
+                    return;
+                  }
+                  document.getElementById('invalidMsg').style.display = 'none';
                   var sendMsg = {
                     'classList': {
                       'from-me': true
